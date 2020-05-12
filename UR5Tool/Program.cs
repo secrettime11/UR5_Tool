@@ -42,8 +42,8 @@ namespace UR5Tool
             Parameter._UR5 = new Control_UR5(Parameter.IP_UR);
             if (args.Length == 0)
             {
-                Application.Run(new Form1(Port));
-                //Application.Run(new AxisEndowment("1234"));
+                //Application.Run(new Form1(Port));
+                Application.Run(new CoordinatesTrans());
             }
             else
             {

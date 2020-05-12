@@ -111,6 +111,8 @@
             this.label29 = new System.Windows.Forms.Label();
             this.button2 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
+            this.IOBtn = new System.Windows.Forms.Button();
+            this.KeyBtn = new System.Windows.Forms.Button();
             this.groupBox11.SuspendLayout();
             this.PositioningGroupBox.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -159,7 +161,7 @@
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(150, 40);
             this.button1.TabIndex = 91;
-            this.button1.Text = "Move2";
+            this.button1.Text = "moveStrSend";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
@@ -998,12 +1000,40 @@
             this.button3.UseVisualStyleBackColor = true;
             this.button3.Click += new System.EventHandler(this.button3_Click);
             // 
+            // IOBtn
+            // 
+            this.IOBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.IOBtn.Font = new System.Drawing.Font("Cambria", 15F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.IOBtn.Location = new System.Drawing.Point(489, 120);
+            this.IOBtn.Margin = new System.Windows.Forms.Padding(2);
+            this.IOBtn.Name = "IOBtn";
+            this.IOBtn.Size = new System.Drawing.Size(114, 41);
+            this.IOBtn.TabIndex = 94;
+            this.IOBtn.Text = "IO Status";
+            this.IOBtn.UseVisualStyleBackColor = true;
+            this.IOBtn.Click += new System.EventHandler(this.IOBtn_Click);
+            // 
+            // KeyBtn
+            // 
+            this.KeyBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.KeyBtn.Font = new System.Drawing.Font("Cambria", 15F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.KeyBtn.Location = new System.Drawing.Point(489, 172);
+            this.KeyBtn.Margin = new System.Windows.Forms.Padding(2);
+            this.KeyBtn.Name = "KeyBtn";
+            this.KeyBtn.Size = new System.Drawing.Size(114, 41);
+            this.KeyBtn.TabIndex = 95;
+            this.KeyBtn.Text = "Key_AI";
+            this.KeyBtn.UseVisualStyleBackColor = true;
+            this.KeyBtn.Click += new System.EventHandler(this.KeyBtn_Click);
+            // 
             // CoordinatesTrans
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
             this.ClientSize = new System.Drawing.Size(630, 765);
+            this.Controls.Add(this.KeyBtn);
+            this.Controls.Add(this.IOBtn);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.groupBox1);
@@ -1122,5 +1152,7 @@
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button IOBtn;
+        private System.Windows.Forms.Button KeyBtn;
     }
 }

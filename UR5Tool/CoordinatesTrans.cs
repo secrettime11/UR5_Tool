@@ -39,70 +39,53 @@ namespace UR5Tool
                 item.KeyPress += TextBox_KeyPress;
             foreach (var item in CalText)
                 item.KeyPress += TextBox_KeyPress;
+
+
+            // Debug
+            string str = System.IO.Directory.GetCurrentDirectory();
+            string OpenPath = str + @"\PositionData\0406.txt";
+            StreamReader sr = new StreamReader(OpenPath);
+
+            string[] txtName = TxtOPen.FileName.Split(new[] { "\\" }, StringSplitOptions.None);
+            string Nametxt = txtName[txtName.Length - 1];
+            Nametxt = Nametxt.Replace(".txt", "");
+            PositionFileNameText.Text = Nametxt.Trim();
+
+            string[] ParameterList = sr.ReadToEnd().Split('\n');
+
+            for (int i = 0; i < ParameterList.Length; i++)
+            {
+                if (!string.IsNullOrEmpty(ParameterList[i]))//server ip
+                    PositionText[i].Text = ParameterList[i].Trim();
+            }
+
+            sr.Close();
         }
         private void movebtn_Click(object sender, EventArgs e)
         {
-            //try { double.Parse(xText.Text); } catch { return; }
-            //try { double.Parse(ytext.Text); } catch { return; }
-            //try { double.Parse(zText.Text); } catch { return; }
-            //Task.Factory.StartNew(() =>
-            //{
-            //Parameter.Pre_X = double.Parse("410") / 1000;
-            //Parameter.Pre_Y = double.Parse("-270") / 1000;
-            //Parameter.Pre_Z = double.Parse("121") / 1000;
-            //for (int i = 2; i < 10; i++)
-            //{
-            //for (int j = 1; j < 100; j++)
-            //{
-            //ControlPatern.MoveUR5.MoveL(610, -270, 121, 0, i, false);
-            //ControlPatern.MoveUR5.MoveL(-220, -270, 121, 0, i, false);
-            //}
-            //Thread.Sleep(2000);
-            //if (i == 3) break;
-            //MessageBox.Show(i.ToString());
-            //break;
-            //}
-
-            //});
-            /*
-            Dictionary<string, object> ThisIsMove_1 = new Dictionary<string, object>
-                    {
-                        { "Mode", "Function" },
-                        { "Behavior", "Move_XYZ" },
-                        { "X_coor", "96" },
-                        { "Y_coor", $"-381"  },
-                        { "Z_coor", $"{221}"  },
-                        { "limitZ", $"{0}" },
-                        { "Speed", $"{4}" },
-                        { "HoldOn", $"{0}" },
-                    };
-            Dictionary<string, object> ThisIsMove_2 = new Dictionary<string, object>
-                    {
-                        { "Mode", "Function" },
-                        { "Behavior", "Move_XYZ" },
-                        { "X_coor", "96" },
-                        { "Y_coor", $"-381"  },
-                        { "Z_coor", $"{171}"  },
-                        { "limitZ", $"{0}" },
-                        { "Speed", $"{4}" },
-                        { "HoldOn", $"{0}" },
-                    };
-            Task.Factory.StartNew(() =>
+            if (task != null && !task.IsCompleted) return;
+            task = Task.Factory.StartNew(() =>
             {
-                for (int i = 0; i < 5000; i++)
-                {
-                    string fuckyou = "";
-                    this.Invoke((MethodInvoker)delegate ()
-                    {
-                        PositionFileNameText.Text = (i + 1).ToString();
-                    });
-                    //ControlPatern.MoveUR5.MoveL(96, -381, 221, 0, 4,600);
-                    //ControlPatern.MoveUR5.MoveL(96, -381, 171, 0, 4,600);
-                    ConnectNet(PostGet.DictionaryToXml(ThisIsMove_1),ref fuckyou);
-                    ConnectNet(PostGet.DictionaryToXml(ThisIsMove_2),ref fuckyou);
-                }
+                List<string> IconList = new List<string>();
+                IconList.Add("test");
+
+                Dictionary<string, object> parametersDic = new Dictionary<string, object>
+                 {
+                    { "X_coor",xText.Text },
+                    { "Y_coor",ytext.Text },
+                    { "Z_coor",zText.Text },
+                    { "limitZ", -1000 },
+                    { "Speed", 5 },
+                 };
+
+                Dictionary<string, object> resultDic = new Dictionary<string, object>
+                 {
+                     { "Status", "True" },
+                     { "LogText", "" },
+                 };
+                ControlPatern.Function.Move_XYZ(resultDic, parametersDic);
             });
-            */
+
         }
         private void ConnectNet(string send, ref string result)
         {
@@ -246,7 +229,7 @@ namespace UR5Tool
             }
             else
             {
-                    MessageBox.Show("Please type in the positioning parameters completely");
+                MessageBox.Show("Please type in the positioning parameters completely");
             }
         }
 
@@ -285,8 +268,6 @@ namespace UR5Tool
             {
                 e.Handled = true;
             }
-
-
         }
 
         private void CalBtn_Click(object sender, EventArgs e)
@@ -373,27 +354,26 @@ namespace UR5Tool
         private void button1_Click(object sender, EventArgs e)
         {
             Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            socket.Connect("192.168.0.1", 30002);
-            for (int i = 0; i < 100; i++)
-            {
-                string movels = $@"movel(p[0.3,-0.27,0.2,3.14,0,0], a=1.5, v=3)";
-                byte[] movel = Encoding.UTF8.GetBytes(movels + "\n");
-                socket.Send(movel);
-                Thread.Sleep(1000);
-                movels = $@"movel(p[0.3,-0.27,0.12,3.14,0,0], a=1.5, v=3)";
-                movel = Encoding.UTF8.GetBytes(movels + "\n");
-                socket.Send(movel);
-                Thread.Sleep(1000);
-            }
-
+            socket.Connect("192.168.0.1", 30003);
+            //for (int i = 0; i < 100; i++)
+            //{
+            string movels = $@"write_port_register(128,3)";
+            byte[] movel = Encoding.UTF8.GetBytes(movels + "\n");
+            socket.Send(movel);
+            //Thread.Sleep(1000);
+            //movels = $@"movel(p[0.3,-0.27,0.12,3.14,0,0], a=1.5, v=3)";
+            //movel = Encoding.UTF8.GetBytes(movels + "\n");
+            //socket.Send(movel);
+            //Thread.Sleep(1000);
+            //}
         }
 
         private void CoordinatesTrans_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.NumPad1)
-            {
-                movebtn.PerformClick();
-            }
+            //if (e.KeyCode == Keys.NumPad1)
+            //{
+            //    movebtn.PerformClick();
+            //}
         }
         Thread MissionA_Thread;
         private void button2_Click(object sender, EventArgs e)
@@ -426,7 +406,6 @@ namespace UR5Tool
             catch { }
             return success;
         }
-
         private void run_script()
         {
             //string aaa = $@"movel(p[0.4,-0.27,0.2,3.14,0,0], a=1.2, v=3)";
@@ -486,7 +465,6 @@ namespace UR5Tool
             position = ToWhere;
             return position;
         }
-
         private void button3_Click(object sender, EventArgs e)
         {
             int port = 29999;
@@ -519,6 +497,86 @@ namespace UR5Tool
                 //dll_PublicFuntion.Other.Wait(0.5);
             }
             c.Close();
+        }
+
+        private void IOBtn_Click(object sender, EventArgs e)
+        {
+            Task.Factory.StartNew(() =>
+            {
+                TcpClient client = new TcpClient();
+                client.Connect(IPAddress.Parse("192.168.0.1"), 502);
+                while (client.Connected)
+                {
+                    NetworkStream sm = client.GetStream();     // start address = 99 , count = 3
+                    sm.Write(new byte[] {
+                    0x01, 0x00,   // transfer flag     (little-endian)
+					0x00, 0x00,   // protocol flag     
+					0x00, 0x06,   // length            (big-endian)
+					0x01,         // device id 
+					0x03,         // function code
+					0x00, 0x80,   // start address     (big-endian)
+					0x00, 0x01    // count             (big-endian)
+				    }, 0, 12);
+
+                    byte[] frame = new byte[256];
+                    int read_len = sm.Read(frame, 0, frame.Length);
+                    if (read_len > 9)
+                    {
+                        Console.WriteLine("successful in receiving:");
+                        int cnt = (int)frame[8];
+                        for (int i = 0; i < cnt; i += 2)
+                        {
+                            uint val = (uint)frame[i + 9];
+                            val <<= 8;
+                            val |= (uint)frame[i + 10];
+                            Console.WriteLine($"cnt:{cnt} val:{val}");
+                        }
+                    }
+                    else if (read_len == 9)
+                    {
+                        Console.WriteLine("rcv error!!");
+                        Console.WriteLine("error code : " + (frame[7] - 0x80) + frame[8]);
+                    }
+                }
+            });
+
+        }
+
+        private void KeyBtn_Click(object sender, EventArgs e)
+        {
+            if (task != null && !task.IsCompleted) return;
+            task = Task.Factory.StartNew(() =>
+            {
+                List<string> IconList = new List<string>();
+                List<string> KeyList = new List<string> { "1", "2", "3", "4" };
+                IconList.Add("KeyTest");
+
+                Dictionary<string, object> parametersDic = new Dictionary<string, object>
+                 {
+                    { "CapturePositionX",CaptureXtext.Text },
+                    { "CapturePositionY",CaptureYtext.Text },
+                    { "CapturePositionZ",CaptureZtext.Text },
+                    { "IconPicPositionX",IconPelXtext.Text },
+                    { "IconPicPositionY",IconPelYtext.Text },
+                    { "IconArmPositionX",IconArmXtext.Text },
+                    { "IconArmPositionY",IconArmYtext.Text },
+                    { "IconFineTurningX",FineXtext.Text },
+                    { "IconFineTurningY",FineYtext.Text },
+                    { "DutPanelZ",DutZtext.Text },
+                    { "Icon",IconList },
+                    { "Keys",KeyList},
+                    { "limitZ", -1000 },
+                    { "Speed", 5 },
+                 };
+
+                Dictionary<string, object> resultDic = new Dictionary<string, object>
+                 {
+                     { "Status", "True" },
+                     { "LogText", "" },
+                 };
+
+                ControlPatern.Function.Key_AI(resultDic, parametersDic);
+            });
         }
     }
 }

@@ -45,26 +45,25 @@ namespace ControlPatern
         }
         public static string MoveSend(List<MoveListData> MoveList)
         {
-            string AAA =
-$@"def Allion():
-";
+            string AAA =$@"def Allion():"+ Environment.NewLine;
+            AAA +=$@"   write_port_register(128,0)" + Environment.NewLine;
             string Text = "";
             for (int i = 0; i < MoveList.Count; i++)
             {
-                AAA +=
-$@"    {MoveList[i].SendText}";
-                if (i != MoveList.Count - 1) AAA += Environment.NewLine;
+                AAA +=$@"   {MoveList[i].SendText}" + Environment.NewLine;
+                AAA +=$@"   write_port_register(128,{i+1})" + Environment.NewLine;
                 if (MoveList[i].ErrorLog != "") { Text = MoveList[i].ErrorLog; break; };
                 if (MoveList[i].SendText == "") { Text = "Error Move Script"; break; };
             }
             AAA +=
 $@"
-    while (not(is_steady())):
-    sync()
-    end
+   while (not(is_steady())):
+   sync()
+   end
 end";
             if (Text != "") return Text;
             //Parameter._Log.Add(AAA, true);
+            //MoveUR5.ModbusStatus();
             if (!Parameter._UR5.Send(AAA + "\n"))
             {
                 return "Send Error";
@@ -102,11 +101,11 @@ end";
                         {
                             if (Parameter._UR5.RobotStatus)
                             {
-                                //robot_mode = 是否在運行 ； safe_mode = 保護性停止
-                                //非安全性停止狀態下
+                                // robot_mode = 是否在運行 ； safe_mode = 保護性停止
+                                // 非安全性停止狀態下
                                 if (Parameter._UR5.Now_UR5_Status.safe_mode == "1")
                                 {
-                                    //取得手臂當前各點座標
+                                    // 取得手臂當前各點座標
                                     double NowX = double.Parse(Parameter._UR5.Now_UR5_Data.Actual_TCP_pose.X);
                                     double NowY = double.Parse(Parameter._UR5.Now_UR5_Data.Actual_TCP_pose.Y);
                                     double NowZ = double.Parse(Parameter._UR5.Now_UR5_Data.Actual_TCP_pose.Z);
@@ -234,6 +233,7 @@ end";
                     }
                 }
 
+                // 預設位置改為當前位置
                 Parameter.Pre_X = inx;
                 Parameter.Pre_Y = iny;
                 Parameter.Pre_Z = inz;
@@ -261,7 +261,7 @@ end";
                     double NowY = Parameter.Pre_Y * 1000;
                     double NowZ = Parameter.Pre_Z * 1000;
 
-                    //檢查是否在原地
+                    // 檢查是否在原地
                     if ((X >= 0 && NowX >= 0) || (X <= 0 && NowX <= 0))
                     {
                         AlreadyMove = true;
@@ -300,7 +300,7 @@ end";
                     }
                     else
                     {
-                        Parameter._Log.Add($"手臂當前位置X/Y/Z : {poseX} / {poseY} / {poseZ}", true);
+                        Parameter._Log.Add($"手臂當前位置X*Y*Z : {poseX} * {poseY} * {poseZ}", true);
                         //當前位置高於目標位置
                         if (Math.Round(NowZ) > Math.Round(Z))
                         {
@@ -434,7 +434,7 @@ end";
                 {
                     string[] IconPixelPosition = (((List<string>)IconDetail["Points"])[0]).Split(',');
 
-                    Parameter._Log.Add($"icon return result after tidy up:  {IconPixelPosition[0]},{IconPixelPosition[1]}", true);
+                    Parameter._Log.Add($"Icon result:  {IconPixelPosition[0]},{IconPixelPosition[1]}", true);
 
                     string pXY = ControlPatern.CMD.New_cmd_piextopointsmall(IconPixelPosition[0], IconPixelPosition[1], IconArmPositionX.ToString(), IconArmPositionY.ToString(), IconPicPositionX, IconPicPositionY, IconFineTurningX, IconFineTurningY, DutPanelZ, CapturePositionZ);
 
@@ -565,7 +565,7 @@ end";
             #endregion
             int HeightGap = CapturePositionZ - DutPanelZ;
 
-            //距離計算起始點改為當前手臂所在位置 X Y Z
+            // 距離計算起始點改為當前手臂所在位置 X Y Z
             Parameter.Pre_X = double.Parse(CapturePositionX.ToString()) / 1000;
             Parameter.Pre_Y = double.Parse(CapturePositionY.ToString()) / 1000;
             Parameter.Pre_Z = double.Parse(CapturePositionZ.ToString()) / 1000;
@@ -659,17 +659,6 @@ end";
             int Y_coor = Int32.Parse(UIdata["Y_coor"].ToString());
             int Z_coor = Int32.Parse(UIdata["Z_coor"].ToString());
             #endregion
-
-            //#region Camera swing
-            //if (X_coor > 0 && Y_coor < 0)
-            //    Parameter.plan = 1;
-            //if (X_coor < 0 && Y_coor < 0)
-            //    Parameter.plan = 2;
-            //if (X_coor < 0 && Y_coor > 0)
-            //    Parameter.plan = 3;
-            //if (X_coor > 0 && Y_coor > 0)
-            //    Parameter.plan = 4;
-            //#endregion
 
             List<ControlPatern.Script.MoveListData> MoveList = ControlPatern.Script.MoveListInit();
             ControlPatern.Script.MoveL(ref MoveList, X_coor, Y_coor, Z_coor, Setting_Z, Speed);   // Start position [Picture position]
@@ -1013,6 +1002,50 @@ end";
             #endregion
             return 1;
         }
+        /// <summary>
+        /// ModBus狀態讀取
+        /// </summary>
+        public static void ModbusStatus() 
+        {
+            Task.Factory.StartNew(() =>
+            {
+                TcpClient client = new TcpClient();
+                client.Connect(IPAddress.Parse("192.168.0.1"), 502);
+                while (client.Connected)
+                {
+                    NetworkStream sm = client.GetStream();     // start address = 99 , count = 3
+                    sm.Write(new byte[] {
+                    0x01, 0x00,   // transfer flag     (little-endian)
+					0x00, 0x00,   // protocol flag     
+					0x00, 0x06,   // length            (big-endian)
+					0x01,         // device id 
+					0x03,         // function code
+					0x00, 0x80,   // start address     (big-endian)
+					0x00, 0x01    // count             (big-endian)
+				    }, 0, 12);
+
+                    byte[] frame = new byte[256];
+                    int read_len = sm.Read(frame, 0, frame.Length);
+                    if (read_len > 9)
+                    {
+                        Console.WriteLine("successful in receiving:");
+                        int cnt = (int)frame[8];
+                        for (int i = 0; i < cnt; i += 2)
+                        {
+                            uint val = (uint)frame[i + 9];
+                            val <<= 8;
+                            val |= (uint)frame[i + 10];
+                            Console.WriteLine($"val:{val}");
+                        }
+                    }
+                    else if (read_len == 9)
+                    {
+                        Console.WriteLine("rcv error!!");
+                        Console.WriteLine("error code : " + (frame[7] - 0x80) + frame[8]);
+                    }
+                }
+            });
+        }
     }
     public class CMD
     {
@@ -1156,7 +1189,7 @@ end";
             //ur5_PX = "951";
             //ur5_PY = "516";
 
-            Console.WriteLine($"piexl position: {pixelX.ToString()},{pixelY.ToString()},{mX.ToString()},{mY.ToString()}");
+            Console.WriteLine($"pixel position: {pixelX.ToString()},{pixelY.ToString()},{mX.ToString()},{mY.ToString()}");
             //MessageBox.Show($"{Ini_Ur5_PX.ToString()},{Ini_Ur5_PY.ToString()},{Ini_Icon_X.ToString()},{Ini_Icon_Y.ToString()}");
             double a1 = deA;
             double b1 = deB;
