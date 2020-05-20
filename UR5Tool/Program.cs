@@ -232,6 +232,8 @@ namespace UR5Tool
                                     else if (Behavior == "Check_AI")
                                     {
                                         #region Necessary parameter
+                                        string ColorMode = "";
+                                        int Confidencevalue = 0;
                                         double Setting_Z = double.Parse(UIdata["limitZ"].ToString());
                                         int Speed = Int32.Parse(UIdata["Speed"].ToString());
                                         int CapturePositionX = Int32.Parse(UIdata["CapturePositionX"].ToString());//1
@@ -244,6 +246,10 @@ namespace UR5Tool
                                         int IconFineTurningX = Int32.Parse(UIdata["IconFineTurningX"].ToString());//8
                                         int IconFineTurningY = Int32.Parse(UIdata["IconFineTurningY"].ToString());//9
                                         int DutPanelZ = Int32.Parse(UIdata["DutPanelZ"].ToString());//10 (240)
+                                        if (UIdata.ContainsKey("ColorMode"))
+                                            ColorMode = UIdata["ColorMode"].ToString();//11 顏色比對
+                                        if (UIdata.ContainsKey("Confidencevalue"))
+                                            Confidencevalue = Int32.Parse(UIdata["Confidencevalue"].ToString());//11 信心度
                                         List<string> Icon = ((List<string>)UIdata["Icon"]);
                                         #endregion
                                         //#region Camera swing
@@ -267,7 +273,7 @@ namespace UR5Tool
 
                                             foreach (var item in (List<string>)Icon)
                                             {
-                                                IconDetail = ControlPatern.CMD.NewGet_XYZ_AI(item);
+                                                IconDetail = ControlPatern.CMD.NewGet_XYZ_AI(item, Confidencevalue,ColorMode);
 
                                                 if (((string)IconDetail["Status"]) == "True")
                                                 {

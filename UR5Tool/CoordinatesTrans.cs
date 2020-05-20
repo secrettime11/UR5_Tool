@@ -12,6 +12,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static ControlPatern.Script;
 
 namespace UR5Tool
 {
@@ -43,7 +44,7 @@ namespace UR5Tool
 
             // Debug
             string str = System.IO.Directory.GetCurrentDirectory();
-            string OpenPath = str + @"\PositionData\0406.txt";
+            string OpenPath = str + @"\PositionData\0515.txt";
             StreamReader sr = new StreamReader(OpenPath);
 
             string[] txtName = TxtOPen.FileName.Split(new[] { "\\" }, StringSplitOptions.None);
@@ -339,6 +340,7 @@ namespace UR5Tool
                     { "Icon",IconList },
                     { "limitZ", -1000 },
                     { "Speed", 5 },
+                    { "AI_hold",3}
                  };
 
                  Dictionary<string, object> resultDic = new Dictionary<string, object>
@@ -516,7 +518,7 @@ namespace UR5Tool
 					0x03,         // function code
 					0x00, 0x80,   // start address     (big-endian)
 					0x00, 0x01    // count             (big-endian)
-				    }, 0, 12);
+                    }, 0, 12);
 
                     byte[] frame = new byte[256];
                     int read_len = sm.Read(frame, 0, frame.Length);
@@ -578,5 +580,111 @@ namespace UR5Tool
                 ControlPatern.Function.Key_AI(resultDic, parametersDic);
             });
         }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            //List<string> Axis = new List<string> { Parameter._UR5.Now_UR5_Data.Actual_Joint_pose.X , Parameter._UR5.Now_UR5_Data.Actual_Joint_pose.Y, Parameter._UR5.Now_UR5_Data.Actual_Joint_pose.Z, Parameter._UR5.Now_UR5_Data.Actual_Joint_pose.rX, Parameter._UR5.Now_UR5_Data.Actual_Joint_pose.rY, Parameter._UR5.Now_UR5_Data.Actual_Joint_pose.rZ };
+            //List<string> Axis = new List<string> { "-18.51", "-103.31", "-118.95", "-40.37", "61.14", "-108.51" };
+            List<string> Axis = new List<string> { "-24.99", "-104.60", "-111.71", "-42.79", "62.22", "-115.83" };
+            for (int i = 0; i < Axis.Count; i++)
+            {
+                Axis[i] = dll_UR5_3_7.Conversion.AngleToDouble(Axis[i].ToString());
+            }
+            foreach (var item in Axis)
+            {
+                Console.WriteLine(item);
+            }
+            List<ControlPatern.Script.MoveListData> MoveList = ControlPatern.Script.MoveListInit();
+            //MoveList.Add(new MoveListData($"movel(get_forward_kin([{Axis[0]},{Axis[1]},{Axis[2]},{Axis[3]},{Axis[4]},{Axis[5]}],p[0,0,{textBox1.Text},0,0,0]))", ""));
+
+            //MoveList.Add(new MoveListData($"global i_1234561 = get_forward_kin(get_actual_joint_positions(), p[0.02222,-0.01067,0.13,0,0,0])", ""));
+
+            MoveList.Add(new MoveListData($"global i_1234561 = get_forward_kin(get_actual_joint_positions(), p[0,0.07,-0.12,0,0,0])", ""));
+            MoveList.Add(new ControlPatern.Script.MoveListData($"movel(get_forward_kin(get_actual_joint_positions(), p[0,-0.07,0,0,0,0]))", ""));
+            //MoveList.Add(new MoveListData($"global i_1234562 = get_forward_kin(get_actual_joint_positions(), p[0.02211,-0.01089,0.13,0,0,0])", ""));
+            /*
+            MoveList.Add(new MoveListData($"global get_r = get_actual_joint_positions()", ""));
+            MoveList.Add(new MoveListData($"global get_d = [0,0,0,0,0,0]", ""));
+            for (int i = 0; i < Axis.Count; i++)
+            {
+                MoveList.Add(new MoveListData($"get_d[{i}] = r2d(get_r[{i}])", ""));
+            }
+            MoveList.Add(new MoveListData($"global get_pose = get_forward_kin(get_r, p[0,0,0,0,0,0])", ""));
+            MoveList.Add(new MoveListData($"global eye_d = [-14.46,-104.58,-121.31,-39.03,60.67,-103.86]", ""));
+            MoveList.Add(new MoveListData($"global eye_r = [-14.46,-104.58,-121.31,-39.03,60.67,-103.86]", ""));
+            for (int i = 0; i < Axis.Count; i++)
+            {
+                MoveList.Add(new MoveListData($"eye_r[{i}] = d2r(eye_d[{i}])", ""));
+            }
+            MoveList.Add(new MoveListData($"global eye_pose = get_forward_kin(eye_r, p[0,0,0,0,0,0])", ""));
+           
+            MoveList.Add(new MoveListData($"movel(get_pose)", ""));
+            */
+
+
+            //MoveList.Add(new MoveListData($"movel(get_forward_kin(get_actual_joint_positions(), p[0,0,{Convert.ToDouble(textBox1.Text)},0,0,0]))", ""));
+            //MoveList.Add(new MoveListData($"movel(pose_trans(p[0,0,{textBox1.Text},0,0,0],get_actual_tcp_pose()),a=1.2,v=0.5)", ""));
+            string ConCheck = ControlPatern.Script.MoveSend(MoveList);
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            if (Convert.ToDouble(textBox1.Text) > 0)
+            {
+                textBox1.Text = "-" + textBox1.Text;
+            }
+            else
+            {
+                textBox1.Text = (Math.Abs(Convert.ToDouble(textBox1.Text))).ToString();
+            }
+            //Console.WriteLine(dll_UR5_3_7.Conversion.AngleToDouble("-14.46"));
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            //Console.WriteLine(Parameter._UR5.Now_UR5_Data.Actual_Joint_pose.X);
+            //Console.WriteLine(dll_UR5_3_7.Conversion.AngleToDouble(Parameter._UR5.Now_UR5_Data.Actual_Joint_pose.X));
+
+            if (task != null && !task.IsCompleted) return;
+            task = Task.Factory.StartNew(() =>
+            {
+                List<string> IconList = new List<string>();
+                IconList.Add("test");
+
+                Dictionary<string, object> parametersDic = new Dictionary<string, object>
+                 {
+                    { "CapturePositionX",CaptureXtext.Text },
+                    { "CapturePositionY",CaptureYtext.Text },
+                    { "CapturePositionZ",CaptureZtext.Text },
+                    { "IconPicPositionX",IconPelXtext.Text },
+                    { "IconPicPositionY",IconPelYtext.Text },
+                    { "IconArmPositionX",IconArmXtext.Text },
+                    { "IconArmPositionY",IconArmYtext.Text },
+                    { "IconFineTurningX",FineXtext.Text },
+                    { "IconFineTurningY",FineYtext.Text },
+                    { "DutPanelZ",DutZtext.Text },
+                    { "Icon",IconList },
+                    { "limitZ", -1000 },
+                    { "Speed", 5 },
+                 };
+
+                Dictionary<string, object> resultDic = new Dictionary<string, object>
+                 {
+                     { "Status", "True" },
+                     { "LogText", "" },
+                 };
+
+                ControlPatern.Function.Move_AI_Test(resultDic, parametersDic);
+            });
+        }
+
+        private void button7_Click(object sender, EventArgs e)
+        {
+            List<ControlPatern.Script.MoveListData> MoveList = ControlPatern.Script.MoveListInit();
+            ControlPatern.Script.MoveL(ref MoveList, 420, -298, 181, -1000, 4);   // Start position [Picture position]
+            string ConCheck = ControlPatern.Script.MoveSend(MoveList);
+        }
+
+
     }
 }

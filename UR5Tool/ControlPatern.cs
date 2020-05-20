@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using UR5Tool;
+using static ControlPatern.Script;
 
 namespace ControlPatern
 {
@@ -45,13 +46,13 @@ namespace ControlPatern
         }
         public static string MoveSend(List<MoveListData> MoveList)
         {
-            string AAA =$@"def Allion():"+ Environment.NewLine;
-            AAA +=$@"   write_port_register(128,0)" + Environment.NewLine;
+            string AAA = $@"def Allion():" + Environment.NewLine;
+            AAA += $@"   write_port_register(128,0)" + Environment.NewLine;
             string Text = "";
             for (int i = 0; i < MoveList.Count; i++)
             {
-                AAA +=$@"   {MoveList[i].SendText}" + Environment.NewLine;
-                AAA +=$@"   write_port_register(128,{i+1})" + Environment.NewLine;
+                AAA += $@"   {MoveList[i].SendText}" + Environment.NewLine;
+                AAA += $@"   write_port_register(128,{i + 1})" + Environment.NewLine;
                 if (MoveList[i].ErrorLog != "") { Text = MoveList[i].ErrorLog; break; };
                 if (MoveList[i].SendText == "") { Text = "Error Move Script"; break; };
             }
@@ -68,7 +69,10 @@ end";
             {
                 return "Send Error";
             }
-            Thread.Sleep(800);
+            //Console.WriteLine("$$$$$$$$$$$$$$$$$$$$$$");
+            //Console.WriteLine(AAA);
+            //Console.WriteLine("$$$$$$$$$$$$$$$$$$$$$$");
+            //Thread.Sleep(800);
             string _recvStr = "";
             try
             {
@@ -356,6 +360,8 @@ end";
 
             int DutPanelZ = Int32.Parse(UIdata["DutPanelZ"].ToString());//10 (240)
             int AI_hold = 0;//11 觸壓時間
+            // 是否按壓辨識的Icon
+            bool IconTouch = bool.Parse(UIdata["IconTouch"].ToString());
             if (UIdata.ContainsKey("AI_hold"))
                 AI_hold = int.Parse(UIdata["AI_hold"].ToString());
             int TouchFineTurningZ = DutPanelZ;
@@ -392,7 +398,7 @@ end";
             Parameter.Pre_Y = double.Parse(CapturePositionY.ToString()) / 1000;
             Parameter.Pre_Z = double.Parse(CapturePositionZ.ToString()) / 1000;
 
-            List<ControlPatern.Script.MoveListData> MoveList= ControlPatern.Script.MoveListInit();
+            List<ControlPatern.Script.MoveListData> MoveList = ControlPatern.Script.MoveListInit();
             ControlPatern.Script.MoveL(ref MoveList, CapturePositionX, CapturePositionY, CapturePositionZ, Setting_Z, Speed);   // Start position [Picture position]
             string ConCheck = ControlPatern.Script.MoveSend(MoveList);
 
@@ -452,10 +458,10 @@ end";
                         MoveXY.X = double.Parse(XYZ_result[0]);
                         MoveXY.Y = double.Parse(XYZ_result[1]);
                         MoveXY.Z = DutPanelZ;
-                        MoveXY.Hold = 0;
+                        MoveXY.Hold = AI_hold;
                         //MoveXYs.Add($"{XYZ_result[0]},{XYZ_result[1]}");
-                        MoveXYs.Add(MoveXY);
-
+                        if (IconTouch)
+                            MoveXYs.Add(MoveXY);
                         if (Multiple_points.Count > 0 && Width > 0 && Height > 0)
                         {
                             //多次移動
@@ -494,7 +500,7 @@ end";
                                     MoveXY.X = double.Parse(XY_result[0]);
                                     MoveXY.Y = double.Parse(XY_result[1]);
                                     MoveXY.Z = DutPanelZ;
-                                    MoveXY.Hold = 0;
+                                    MoveXY.Hold = AI_hold;
                                     //MoveXYs.Add(XY);
                                     MoveXYs.Add(MoveXY);
                                 }
@@ -665,7 +671,7 @@ end";
             string ConCheck = ControlPatern.Script.MoveSend(MoveList);
             if (ConCheck == "")
             {
-               
+
                 ResultArray["Status"] = "True";
                 ResultArray["LogText"] = "Robot move to the right position.";
             }
@@ -928,7 +934,7 @@ end";
             string Move5 = ControlPatern.Script.MoveSend(MoveList);
             if (Move5 == "")
             {
-             
+
                 ResultArray["Status"] = "True";
                 ResultArray["LogText"] = "Last Move Success";
             }
@@ -939,7 +945,177 @@ end";
             }
             return ResultArray;
         }
+        public static Dictionary<string, object> Move_AI_Test(Dictionary<string, object> ResultArray, Dictionary<string, object> UIdata)
+        {
+            Parameter._Log.Add($"********Move_AI*********", true);
 
+            #region Necessary parameter
+            double Setting_Z = double.Parse(UIdata["limitZ"].ToString());
+            int Speed = Int32.Parse(UIdata["Speed"].ToString());
+            //int X_coor = Int32.Parse(UIdata["X_coor"].ToString());
+            //int Y_coor = Int32.Parse(UIdata["Y_coor"].ToString());
+            int CapturePositionX = Int32.Parse(UIdata["CapturePositionX"].ToString());//1 拍照X
+            int CapturePositionY = Int32.Parse(UIdata["CapturePositionY"].ToString());//2 拍照Y
+            int CapturePositionZ = Int32.Parse(UIdata["CapturePositionZ"].ToString());//3 拍照Z
+            int IconPicPositionX = Int32.Parse(UIdata["IconPicPositionX"].ToString());//4 起點PX
+            int IconPicPositionY = Int32.Parse(UIdata["IconPicPositionY"].ToString());//5 起點PY
+            int IconArmPositionX = Int32.Parse(UIdata["IconArmPositionX"].ToString());//6 圖標手臂X
+            int IconArmPositionY = Int32.Parse(UIdata["IconArmPositionY"].ToString());//7 圖標手臂Y
+            int IconFineTurningX = Int32.Parse(UIdata["IconFineTurningX"].ToString());//8 校正X
+            int IconFineTurningY = Int32.Parse(UIdata["IconFineTurningY"].ToString());//9 校正Y
+
+            int DutPanelZ = Int32.Parse(UIdata["DutPanelZ"].ToString());//10 (240)
+            int AI_hold = 0;//11 觸壓時間
+            if (UIdata.ContainsKey("AI_hold"))
+                AI_hold = int.Parse(UIdata["AI_hold"].ToString());
+            int TouchFineTurningZ = DutPanelZ;
+
+            List<string> Axis = new List<string> { "-18.51", "-103.31", "-118.95", "-40.37", "61.14", "-108.51" };
+            for (int i = 0; i < Axis.Count; i++)
+            {
+                Axis[i] = dll_UR5_3_7.Conversion.AngleToDouble(Axis[i].ToString());
+            }
+
+            if (UIdata.ContainsKey("TouchFineTurningZ"))
+            {
+                try
+                {
+                    TouchFineTurningZ = Convert.ToInt32(UIdata["TouchFineTurningZ"]);
+                    if (DutPanelZ > TouchFineTurningZ)
+                    {
+                        TouchFineTurningZ = DutPanelZ;
+                    }
+                }
+                catch (Exception)
+                {
+                }
+            }
+            int HeightGap = CapturePositionZ - TouchFineTurningZ;
+
+            //int CapturePositionZ = Int32.Parse(UIdata["CapturePositionZ"].ToString()); //(360)
+            string Icon = ((List<string>)UIdata["Icon"])[0]; //label name
+            List<string> Multiple_points = new List<string>();
+            if (UIdata.ContainsKey("Multiple_points") && UIdata["Multiple_points"] is List<string>)
+            {
+                Multiple_points = (List<string>)UIdata["Multiple_points"]; // 視覺回傳百分比
+            }
+            double Width = 0; /*= double.Parse(UIdata["Width"].ToString());*/ //照片寬解析度
+            double Height = 0; /*=double.Parse(UIdata["Height"].ToString());*/ // 照片長解析度
+            #endregion
+
+            // 距離計算起始點改為當前手臂所在位置 X Y Z
+            Parameter.Pre_X = double.Parse(CapturePositionX.ToString()) / 1000;
+            Parameter.Pre_Y = double.Parse(CapturePositionY.ToString()) / 1000;
+            Parameter.Pre_Z = double.Parse(CapturePositionZ.ToString()) / 1000;
+
+            List<ControlPatern.Script.MoveListData> MoveList = ControlPatern.Script.MoveListInit();
+            //ControlPatern.Script.MoveL(ref MoveList, CapturePositionX, CapturePositionY, CapturePositionZ, Setting_Z, Speed);   // Start position [Picture position]
+            Axis = new List<string> { "-24.99", "-104.60", "-111.71", "-42.79", "62.22", "-115.83" };//中心點
+            Axis = new List<string> { "-18.51", "-103.31", "-118.95", "-40.37", "61.14", "-108.51" };//相機拍照
+            Axis = new List<string> { "-33.09", "-106.98", "-106.12", "-38.57", "64.13", "-307.96" };//相機拍照
+            for (int i = 0; i < Axis.Count; i++)
+            {
+                Axis[i] = dll_UR5_3_7.Conversion.AngleToDouble(Axis[i].ToString());
+            }
+            MoveList.Add(new ControlPatern.Script.MoveListData($"movej([{Axis[0]},{Axis[1]},{Axis[2]},{Axis[3]},{Axis[4]},{Axis[5]}], a = 1.4, v = 0.5)", ""));
+            string ConCheck = ControlPatern.Script.MoveSend(MoveList);
+            //return ResultArray;
+            MoveList = ControlPatern.Script.MoveListInit();
+            if (ConCheck == "")
+            {
+                ResultArray["Status"] = "True";
+                ResultArray["LogText"] = "First Move Success";
+                Dictionary<string, object> IconDetail = ControlPatern.CMD.NewGet_XYZ_AI(Icon);     //拿到pixel座標
+                ResultArray["LogText"] = ((string)IconDetail["Status"]);
+                // 移動到相機位置
+                MoveList.Add(new ControlPatern.Script.MoveListData($"movel(get_forward_kin([{Axis[0]},{Axis[1]},{Axis[2]},{Axis[3]},{Axis[4]},{Axis[5]}], p[0,0.07,0,0,0,0]))", ""));
+                MoveList.Add(new ControlPatern.Script.MoveListData($"global new_base = get_actual_joint_positions()", ""));
+                if (IconDetail.ContainsKey("MatchPng"))
+                {
+                    //路徑
+                    ResultArray.Add("MatchPng", IconDetail["MatchPng"]);
+                    if (File.Exists((string)IconDetail["MatchPng"]))
+                    {
+                        Image image = Image.FromFile((string)IconDetail["MatchPng"]);
+                        Width = image.Width;
+                        Height = image.Height;
+                    }
+                    else
+                    {
+                        Width = 1920;
+                        Height = 1080;
+                    }
+                }
+                if (IconDetail.ContainsKey("Status")) //狀態
+                    ResultArray["Status"] = IconDetail["Status"];
+
+                if (IconDetail.ContainsKey("LogText")) //Log
+                    ResultArray["LogText"] = IconDetail["LogText"];
+
+                Parameter._Log.Add($"Icon pixel coordinate:  {ResultArray["Status"]}", true);
+                //IconDetail["Status"] = "True";
+                //IconDetail["Points"] = new List<string> { "50,50" };
+                if (((string)IconDetail["Status"]) == "True")
+                {
+                    string[] IconPixelPosition = (((List<string>)IconDetail["Points"])[0]).Split(',');
+                    Console.WriteLine($"IconPixelPosition:{IconPixelPosition[0]},{IconPixelPosition[1]}");
+
+                    Parameter._Log.Add($"Icon result:  {IconPixelPosition[0]},{IconPixelPosition[1]}", true);
+
+                    double pxxx = (((960 - double.Parse(IconPixelPosition[0])) * 0.11) / 1000) * -1;
+                    double pyyy = (((540 - double.Parse(IconPixelPosition[1])) * 0.11) / 1000) * -1;
+                    pxxx = pxxx * -1;
+                    pyyy = pyyy * -1;
+                    string pXY = $"{pxxx},{pyyy}";
+
+                    MoveList.Add(new MoveListData($"global i_1234562 = get_forward_kin(get_actual_joint_positions(), p[{pxxx},{pyyy},0.13,0,0,0])", ""));
+                    MoveList.Add(new ControlPatern.Script.MoveListData($"movel(get_forward_kin(get_actual_joint_positions(), p[{pxxx},{pyyy},0.12,0,0,0]))", ""));
+                    //string pXY = ControlPatern.CMD.Tets_piextopointsmall(IconPixelPosition[0], IconPixelPosition[1], IconArmPositionX.ToString(), IconArmPositionY.ToString(), IconPicPositionX, IconPicPositionY, IconFineTurningX, IconFineTurningY, DutPanelZ, CapturePositionZ);
+                    ConCheck = ControlPatern.Script.MoveSend(MoveList);
+                    Parameter._Log.Add($"pXY : {pXY}", true);
+
+                    string[] XYZ_result = pXY.Split(',');
+
+                    ResultArray["LogText"] = "Robot arm target position:" + XYZ_result[0] + "," + XYZ_result[1];
+                    double xxxx = Convert.ToDouble(XYZ_result[0]) - 419;
+                    double yyyy = -358 - Convert.ToDouble(XYZ_result[1]);
+                    Console.WriteLine($"xxxx:{xxxx}/yyyy:{yyyy}");
+                    if (XYZ_result != null)
+                    {
+                        //MoveList.Add(new ControlPatern.Script.MoveListData($"movel(get_forward_kin(new_base, p[0,-{yyyy / 1000},0,0,0,0]))", ""));
+                        // MoveList.Add(new ControlPatern.Script.MoveListData($"movel(get_forward_kin([{Axis[0]},{Axis[1]},{Axis[2]},{Axis[3]},{Axis[4]},{Axis[5]}], p[0,{yyyy/1000},0,0,0,0]))", ""));
+                        // MoveList.Add(new ControlPatern.Script.MoveListData($"movel(get_forward_kin([{Axis[0]},{Axis[1]},{Axis[2]},{Axis[3]},{Axis[4]},{Axis[5]}], p[0,0,-0.081,0,0,0]))", ""));
+
+                        //ControlPatern.Script.MoveL(ref MoveList, CapturePositionX, CapturePositionY, CapturePositionZ, Setting_Z, Speed);   // Start position [Picture position]
+                        MoveList = ControlPatern.Script.MoveListInit();
+                        MoveList.Add(new ControlPatern.Script.MoveListData($"movej([{Axis[0]},{Axis[1]},{Axis[2]},{Axis[3]},{Axis[4]},{Axis[5]}], a = 1.4, v = 0.5)", ""));
+                        ConCheck = ControlPatern.Script.MoveSend(MoveList);
+
+                        if (ConCheck == "")
+                        {
+                            ResultArray["Status"] = "True";
+                            ResultArray["LogText"] = "ConCheck Move Success";
+                        }
+                        else
+                        {
+                            ResultArray["Status"] = "False";
+                            ResultArray["LogText"] = "Start to move : " + ConCheck;
+                        }
+                    }
+                }
+                else
+                {
+                    ResultArray["Status"] = "False";
+                    ResultArray["LogText"] = "There's no icon detected.";
+                }
+            }
+            else
+            {
+                ResultArray["Status"] = "False";
+                ResultArray["LogText"] = "Start to move : " + ConCheck;
+            }
+            return ResultArray;
+        }
     }
     public class MoveUR5
     {
@@ -1005,7 +1181,7 @@ end";
         /// <summary>
         /// ModBus狀態讀取
         /// </summary>
-        public static void ModbusStatus() 
+        public static void ModbusStatus()
         {
             Task.Factory.StartNew(() =>
             {
@@ -1049,7 +1225,11 @@ end";
     }
     public class CMD
     {
-        public static Dictionary<string, object> NewGet_XYZ_AI(string icon_name)       //mode    co=color  sh=shape   cm=complex
+        public static Dictionary<string, object> NewGet_XYZ_AI(string icon_name)
+        {
+            return NewGet_XYZ_AI(icon_name, null, null);
+        }
+        public static Dictionary<string, object> NewGet_XYZ_AI(string icon_name, object confidential, object colormode)       //mode    co=color  sh=shape   cm=complex
         {
             Dictionary<string, object> ResultFalse = new Dictionary<string, object>
             {
@@ -1074,6 +1254,14 @@ end";
                     { "Behavior", "icon"},
                     { "Labels", new List<string>{ icon_name } },
                 };
+                if (confidential is int)
+                {
+                    IconBack.Add("Confidencevalue", $"{confidential}");
+                }
+                if (colormode is string)
+                {
+                    IconBack.Add("ColorMode", $"{colormode}");
+                }
                 string xyz = PostGet.DictionaryToXml(IconBack);
                 Console.Write(xyz + "\n");
                 byte[] bmsg = Encoding.UTF8.GetBytes(xyz);
@@ -1308,6 +1496,39 @@ end";
             //p2y = (Py - double.Parse(mY)) * special;
             //x = double.Parse(ur5_X) - (p2x) + a1;
             //y = (double.Parse(ur5_Y) + (p2y) + b1);
+
+            string xy = x.ToString() + "," + y.ToString();
+            // MessageBox.Show(xy);
+            return xy;
+        }
+        public static string Tets_piextopointsmall(string mX, string mY, string UR5X, string UR5Y, int pixelX, int pixelY, double deA, double deB, int Dut, int shotPosition)
+        {
+            //ur5_X = "395";
+            //ur5_Y = "-425";
+            //ur5_PX = "951";
+            //ur5_PY = "516";
+
+            Console.WriteLine($"pixel position: {pixelX.ToString()},{pixelY.ToString()},{mX.ToString()},{mY.ToString()}");
+            //MessageBox.Show($"{Ini_Ur5_PX.ToString()},{Ini_Ur5_PY.ToString()},{Ini_Icon_X.ToString()},{Ini_Icon_Y.ToString()}");
+            double a1 = deA;
+            double b1 = deB;
+            double x = 0;
+            double y = 0;
+            double p2x = 0;
+            double p2y = 0;
+            double Px = double.Parse(pixelX.ToString());
+            double Py = double.Parse(pixelY.ToString());
+            double Gap120 = 0;
+            double Gap240 = 0;
+            int gap = Math.Abs(shotPosition - Dut);
+            Console.Write("Py=" + Py + "\n");
+            int plan = MoveUR5.GetPlan(double.Parse(UR5X), double.Parse(UR5Y));
+            Gap120 = 0.11;
+
+            p2x = (Px - double.Parse(mX)) * Gap120;
+            p2y = (Py - double.Parse(mY)) * Gap120;
+            x = double.Parse(UR5X) - (p2x) + a1;
+            y = (double.Parse(UR5Y) + (p2y) + b1);
 
             string xy = x.ToString() + "," + y.ToString();
             // MessageBox.Show(xy);

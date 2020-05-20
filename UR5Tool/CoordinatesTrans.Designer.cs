@@ -113,6 +113,17 @@
             this.button3 = new System.Windows.Forms.Button();
             this.IOBtn = new System.Windows.Forms.Button();
             this.KeyBtn = new System.Windows.Forms.Button();
+            this.button4 = new System.Windows.Forms.Button();
+            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.button5 = new System.Windows.Forms.Button();
+            this.button6 = new System.Windows.Forms.Button();
+            this.button7 = new System.Windows.Forms.Button();
+            this.label42 = new System.Windows.Forms.Label();
+            this.rzText = new System.Windows.Forms.TextBox();
+            this.label43 = new System.Windows.Forms.Label();
+            this.label44 = new System.Windows.Forms.Label();
+            this.ryText = new System.Windows.Forms.TextBox();
+            this.rxText = new System.Windows.Forms.TextBox();
             this.groupBox11.SuspendLayout();
             this.PositioningGroupBox.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -1026,12 +1037,138 @@
             this.KeyBtn.UseVisualStyleBackColor = true;
             this.KeyBtn.Click += new System.EventHandler(this.KeyBtn_Click);
             // 
+            // button4
+            // 
+            this.button4.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button4.Font = new System.Drawing.Font("Cambria", 15F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button4.Location = new System.Drawing.Point(489, 223);
+            this.button4.Margin = new System.Windows.Forms.Padding(2);
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size(114, 41);
+            this.button4.TabIndex = 96;
+            this.button4.Text = "Drill";
+            this.button4.UseVisualStyleBackColor = true;
+            this.button4.Click += new System.EventHandler(this.button4_Click);
+            // 
+            // textBox1
+            // 
+            this.textBox1.Font = new System.Drawing.Font("Consolas", 12F);
+            this.textBox1.Location = new System.Drawing.Point(489, 269);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(46, 26);
+            this.textBox1.TabIndex = 92;
+            this.textBox1.Text = "0.1";
+            // 
+            // button5
+            // 
+            this.button5.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button5.Font = new System.Drawing.Font("Cambria", 15F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button5.Location = new System.Drawing.Point(540, 268);
+            this.button5.Margin = new System.Windows.Forms.Padding(2);
+            this.button5.Name = "button5";
+            this.button5.Size = new System.Drawing.Size(63, 27);
+            this.button5.TabIndex = 97;
+            this.button5.Text = ">>>";
+            this.button5.UseVisualStyleBackColor = true;
+            this.button5.Click += new System.EventHandler(this.button5_Click);
+            // 
+            // button6
+            // 
+            this.button6.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button6.Font = new System.Drawing.Font("Cambria", 15F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button6.Location = new System.Drawing.Point(489, 307);
+            this.button6.Margin = new System.Windows.Forms.Padding(2);
+            this.button6.Name = "button6";
+            this.button6.Size = new System.Drawing.Size(114, 41);
+            this.button6.TabIndex = 98;
+            this.button6.Text = "Slope_AI";
+            this.button6.UseVisualStyleBackColor = true;
+            this.button6.Click += new System.EventHandler(this.button6_Click);
+            // 
+            // button7
+            // 
+            this.button7.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button7.Font = new System.Drawing.Font("Cambria", 15F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button7.Location = new System.Drawing.Point(489, 357);
+            this.button7.Margin = new System.Windows.Forms.Padding(2);
+            this.button7.Name = "button7";
+            this.button7.Size = new System.Drawing.Size(114, 40);
+            this.button7.TabIndex = 92;
+            this.button7.Text = "Move";
+            this.button7.UseVisualStyleBackColor = true;
+            this.button7.Click += new System.EventHandler(this.button7_Click);
+            // 
+            // label42
+            // 
+            this.label42.AutoSize = true;
+            this.label42.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label42.Location = new System.Drawing.Point(574, 490);
+            this.label42.Name = "label42";
+            this.label42.Size = new System.Drawing.Size(36, 19);
+            this.label42.TabIndex = 97;
+            this.label42.Text = "rad";
+            // 
+            // rzText
+            // 
+            this.rzText.Font = new System.Drawing.Font("Consolas", 12F);
+            this.rzText.Location = new System.Drawing.Point(526, 487);
+            this.rzText.Name = "rzText";
+            this.rzText.Size = new System.Drawing.Size(46, 26);
+            this.rzText.TabIndex = 94;
+            // 
+            // label43
+            // 
+            this.label43.AutoSize = true;
+            this.label43.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label43.Location = new System.Drawing.Point(574, 458);
+            this.label43.Name = "label43";
+            this.label43.Size = new System.Drawing.Size(36, 19);
+            this.label43.TabIndex = 96;
+            this.label43.Text = "rad";
+            // 
+            // label44
+            // 
+            this.label44.AutoSize = true;
+            this.label44.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label44.Location = new System.Drawing.Point(574, 420);
+            this.label44.Name = "label44";
+            this.label44.Size = new System.Drawing.Size(36, 19);
+            this.label44.TabIndex = 95;
+            this.label44.Text = "rad";
+            // 
+            // ryText
+            // 
+            this.ryText.Font = new System.Drawing.Font("Consolas", 12F);
+            this.ryText.Location = new System.Drawing.Point(526, 455);
+            this.ryText.Name = "ryText";
+            this.ryText.Size = new System.Drawing.Size(46, 26);
+            this.ryText.TabIndex = 93;
+            // 
+            // rxText
+            // 
+            this.rxText.Font = new System.Drawing.Font("Consolas", 12F);
+            this.rxText.Location = new System.Drawing.Point(526, 419);
+            this.rxText.Name = "rxText";
+            this.rxText.Size = new System.Drawing.Size(46, 26);
+            this.rxText.TabIndex = 92;
+            // 
             // CoordinatesTrans
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
             this.ClientSize = new System.Drawing.Size(630, 765);
+            this.Controls.Add(this.label42);
+            this.Controls.Add(this.button7);
+            this.Controls.Add(this.rzText);
+            this.Controls.Add(this.button6);
+            this.Controls.Add(this.label43);
+            this.Controls.Add(this.button5);
+            this.Controls.Add(this.label44);
+            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.ryText);
+            this.Controls.Add(this.rxText);
+            this.Controls.Add(this.button4);
             this.Controls.Add(this.KeyBtn);
             this.Controls.Add(this.IOBtn);
             this.Controls.Add(this.button3);
@@ -1064,6 +1201,7 @@
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -1154,5 +1292,16 @@
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Button IOBtn;
         private System.Windows.Forms.Button KeyBtn;
+        private System.Windows.Forms.Button button4;
+        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Button button5;
+        private System.Windows.Forms.Button button6;
+        private System.Windows.Forms.Button button7;
+        private System.Windows.Forms.Label label42;
+        private System.Windows.Forms.TextBox rzText;
+        private System.Windows.Forms.Label label43;
+        private System.Windows.Forms.Label label44;
+        private System.Windows.Forms.TextBox ryText;
+        private System.Windows.Forms.TextBox rxText;
     }
 }
