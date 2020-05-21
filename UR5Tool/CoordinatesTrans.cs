@@ -44,7 +44,7 @@ namespace UR5Tool
 
             // Debug
             string str = System.IO.Directory.GetCurrentDirectory();
-            string OpenPath = str + @"\PositionData\0515.txt";
+            string OpenPath = str + @"\PositionData\0521UR5.txt";
             StreamReader sr = new StreamReader(OpenPath);
 
             string[] txtName = TxtOPen.FileName.Split(new[] { "\\" }, StringSplitOptions.None);
@@ -323,6 +323,8 @@ namespace UR5Tool
             task = Task.Factory.StartNew(() =>
              {
                  List<string> IconList = new List<string>();
+                 List<string> YAYAYA = new List<string>();
+                 YAYAYA.Add("10,10");
                  IconList.Add("test");
 
                  Dictionary<string, object> parametersDic = new Dictionary<string, object>
@@ -340,7 +342,8 @@ namespace UR5Tool
                     { "Icon",IconList },
                     { "limitZ", -1000 },
                     { "Speed", 5 },
-                    { "AI_hold",3}
+                    { "AI_hold", 0 },
+                    { "IconTouch",true},
                  };
 
                  Dictionary<string, object> resultDic = new Dictionary<string, object>

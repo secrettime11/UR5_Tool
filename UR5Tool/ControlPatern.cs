@@ -72,7 +72,7 @@ end";
             //Console.WriteLine("$$$$$$$$$$$$$$$$$$$$$$");
             //Console.WriteLine(AAA);
             //Console.WriteLine("$$$$$$$$$$$$$$$$$$$$$$");
-            //Thread.Sleep(800);
+            Thread.Sleep(800);
             string _recvStr = "";
             try
             {
@@ -399,7 +399,7 @@ end";
             Parameter.Pre_Z = double.Parse(CapturePositionZ.ToString()) / 1000;
 
             List<ControlPatern.Script.MoveListData> MoveList = ControlPatern.Script.MoveListInit();
-            ControlPatern.Script.MoveL(ref MoveList, CapturePositionX, CapturePositionY, CapturePositionZ, Setting_Z, Speed);   // Start position [Picture position]
+            ControlPatern.Script.MoveL(ref  MoveList, CapturePositionX, CapturePositionY, CapturePositionZ, Setting_Z, Speed);   // Start position [Picture position]
             string ConCheck = ControlPatern.Script.MoveSend(MoveList);
 
             if (ConCheck == "")
@@ -449,7 +449,6 @@ end";
                     string[] XYZ_result = pXY.Split(',');
 
                     ResultArray["LogText"] = "Robot arm target position:" + XYZ_result[0] + "," + XYZ_result[1];
-
                     if (XYZ_result != null)
                     {
                         List<MoveUR5.TouchData> MoveXYs = new List<MoveUR5.TouchData> { };
@@ -461,11 +460,14 @@ end";
                         MoveXY.Hold = AI_hold;
                         //MoveXYs.Add($"{XYZ_result[0]},{XYZ_result[1]}");
                         if (IconTouch)
+                        {
                             MoveXYs.Add(MoveXY);
+                        }
                         if (Multiple_points.Count > 0 && Width > 0 && Height > 0)
                         {
                             //多次移動
                             Parameter._Log.Add("############多次移動開始############", true);
+                            
                             foreach (string percentPoint in Multiple_points)
                             {
                                 double percentX = 0;
